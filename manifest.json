@@ -1,0 +1,62 @@
+{
+    "name": "nai_artist",
+    "version": "1.0.0",
+    "description": "NAI Artist — 让 bot 像真人一样用手机拍照或画画并分享给对方。",
+    "author": "MoFox Team",
+    "dependencies": {
+        "plugins": [],
+        "components": []
+    },
+    "include": [
+        {
+            "component_type": "service",
+            "component_name": "nai_artist",
+            "dependencies": [],
+            "enabled": true
+        },
+        {
+            "component_type": "service",
+            "component_name": "wardrobe",
+            "dependencies": [],
+            "enabled": true
+        },
+        {
+            "component_type": "action",
+            "component_name": "share_visual",
+            "dependencies": [
+                "nai_artist:service:nai_artist"
+            ],
+            "enabled": true
+        },
+        {
+            "component_type": "action",
+            "component_name": "change_outfit",
+            "dependencies": [
+                "nai_artist:service:wardrobe"
+            ],
+            "enabled": true
+        },
+        {
+            "component_type": "router",
+            "component_name": "webui",
+            "dependencies": [],
+            "enabled": true
+        }
+    ],
+    "entry_point": "plugin.py",
+    "min_core_version": "1.0.0",
+    "python_dependencies": [
+        "httpx"
+    ],
+    "dependencies_required": true,
+    "categories": [
+        "tool"
+    ],
+    "tags": [
+        "draw",
+        "action",
+        "clothes",
+        "novel ai",
+        "text-to-image generation"
+    ]
+}

@@ -1,0 +1,2701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>NAI Artist WebUI</title>
+  <style>
+    :root {
+      --bg: #f5efe6;
+      --panel: rgba(255, 251, 245, 0.92);
+      --ink: #211a14;
+      --muted: #68594b;
+      --line: rgba(33, 26, 20, 0.12);
+      --accent: #b34f2e;
+      --accent-2: #284a3d;
+      --accent-3: #d8a774;
+      --warning: #8b2f1f;
+      --shadow: 0 20px 50px rgba(60, 33, 18, 0.12);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(179, 79, 46, 0.18), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(40, 74, 61, 0.16), transparent 28%),
+        linear-gradient(135deg, #f8f2e7 0%, #f1e5d4 100%);
+      min-height: 100vh;
+    }
+
+    .shell {
+      max-width: 1540px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-main {
+      padding: 28px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(179, 79, 46, 0.08);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+    }
+
+    h1 {
+      margin-top: 16px;
+      font-size: clamp(32px, 4vw, 54px);
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .lead {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    .hero-side {
+      padding: 24px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stat {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.68);
+      border: 1px solid var(--line);
+      min-height: 86px;
+    }
+
+    .stat small {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(460px, 0.95fr) minmax(420px, 1.05fr);
+      gap: 18px;
+    }
+
+    .column {
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .section {
+      padding: 22px;
+    }
+
+    .section h2 {
+      font-size: 20px;
+      margin-bottom: 14px;
+    }
+
+    .section-note {
+      margin: -4px 0 16px;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .field,
+    .stack {
+      display: grid;
+      gap: 7px;
+    }
+
+    .stack {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .field-help {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid rgba(33, 26, 20, 0.14);
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--ink);
+      border-radius: 16px;
+      padding: 12px 14px;
+      font: inherit;
+      resize: vertical;
+    }
+
+    textarea {
+      min-height: 118px;
+      line-height: 1.55;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .toggle input {
+      width: auto;
+      margin: 0;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #fff5ef;
+      box-shadow: 0 10px 25px rgba(179, 79, 46, 0.28);
+    }
+
+    .secondary {
+      background: var(--accent-2);
+      color: #eef6f2;
+      box-shadow: 0 10px 25px rgba(40, 74, 61, 0.2);
+    }
+
+    .ghost {
+      background: rgba(33, 26, 20, 0.06);
+      color: var(--ink);
+    }
+
+    .soft {
+      background: rgba(216, 167, 116, 0.16);
+      color: var(--ink);
+    }
+
+    .danger {
+      background: rgba(139, 47, 31, 0.12);
+      color: var(--warning);
+    }
+
+    .result-box {
+      min-height: 112px;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.76);
+      white-space: pre-wrap;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+      font-family: "Cascadia Code", "Consolas", monospace;
+      font-size: 13px;
+    }
+
+    .preview {
+      width: 100%;
+      min-height: 420px;
+      border: 1px dashed rgba(33, 26, 20, 0.15);
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(246,238,229,0.8));
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .preview img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .status {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .error {
+      color: var(--warning);
+      font-weight: 700;
+    }
+
+    .wardrobe-board {
+      margin-top: 18px;
+      padding: 24px;
+    }
+
+    .board-head {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .board-stats {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .wardrobe-shell {
+      display: grid;
+      grid-template-columns: 168px 1fr;
+      gap: 18px;
+      min-height: 680px;
+    }
+
+    .wardrobe-nav {
+      display: grid;
+      gap: 6px;
+      align-content: start;
+      padding: 12px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid var(--line);
+    }
+
+    .nav-btn {
+      text-align: left;
+      border-radius: 16px;
+      padding: 10px 12px;
+      background: transparent;
+      color: var(--ink);
+      box-shadow: none;
+      border: 1px solid transparent;
+      font-size: 14px;
+    }
+
+    .nav-btn.active {
+      background: rgba(216, 167, 116, 0.18);
+      color: var(--accent);
+      border-color: rgba(179, 79, 46, 0.18);
+      box-shadow: none;
+    }
+
+    .wardrobe-main {
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.58);
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .view-shell {
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .summary-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .summary-card,
+    .slot-card,
+    .option-card,
+    .preset-card,
+    .editor-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid var(--line);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .card-subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .tag-strip {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(40, 74, 61, 0.07);
+      border: 1px solid rgba(40, 74, 61, 0.12);
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--ink);
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .tag-strip.is-empty {
+      background: rgba(33, 26, 20, 0.05);
+      border-color: rgba(33, 26, 20, 0.08);
+      color: var(--muted);
+    }
+
+    .slot-grid,
+    .option-grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .chip-row,
+    .mini-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: rgba(179, 79, 46, 0.08);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .chip.muted {
+      background: rgba(33, 26, 20, 0.06);
+      color: var(--muted);
+    }
+
+    .checkbox-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(33, 26, 20, 0.05);
+      border: 1px solid rgba(33, 26, 20, 0.08);
+    }
+
+    .checkbox-item input {
+      width: auto;
+      margin-top: 3px;
+    }
+
+    .checkbox-copy strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .checkbox-copy span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .preset-layout,
+    .library-layout {
+      display: grid;
+      grid-template-columns: minmax(290px, 0.75fr) minmax(360px, 1fr);
+      gap: 16px;
+      align-items: start;
+      min-width: 0;
+    }
+
+    .preset-layout > *,
+    .library-layout > * {
+      min-width: 0;
+      align-self: start;
+    }
+
+    .preset-list,
+    .library-list {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      min-width: 0;
+      align-self: start;
+      max-height: min(70vh, 980px);
+      overflow: auto;
+      padding-right: 6px;
+      scrollbar-gutter: stable;
+      overscroll-behavior: contain;
+    }
+
+    .library-editor-stack {
+      display: grid;
+      gap: 16px;
+      align-content: start;
+      min-width: 0;
+    }
+
+    .preset-editor-scroll {
+      max-height: min(70vh, 980px);
+      overflow: auto;
+      padding-right: 6px;
+      scrollbar-gutter: stable;
+      overscroll-behavior: contain;
+    }
+
+    .list-tools {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .list-tools .muted-box {
+      flex: 1 1 280px;
+    }
+
+    .catalog-layout {
+      display: grid;
+      grid-template-columns: minmax(230px, 0.42fr) minmax(420px, 1fr);
+      gap: 16px;
+      align-items: start;
+      min-width: 0;
+    }
+
+    .secondary-pane {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+      min-width: 0;
+    }
+
+    .secondary-tools {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .secondary-list {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      max-height: min(72vh, 980px);
+      overflow: auto;
+      padding-right: 6px;
+      scrollbar-gutter: stable;
+      overscroll-behavior: contain;
+    }
+
+    .secondary-item {
+      width: 100%;
+      display: grid;
+      gap: 6px;
+      text-align: left;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--ink);
+      border: 1px solid rgba(33, 26, 20, 0.1);
+      box-shadow: none;
+    }
+
+    .secondary-item:hover {
+      transform: none;
+      border-color: rgba(179, 79, 46, 0.2);
+    }
+
+    .secondary-item.is-active {
+      background: rgba(245, 221, 142, 0.34);
+      border-color: rgba(205, 159, 36, 0.46);
+    }
+
+    .secondary-item.is-saved {
+      background: rgba(161, 199, 236, 0.28);
+      border-color: rgba(102, 146, 191, 0.34);
+    }
+
+    .secondary-item.is-draft {
+      border-style: dashed;
+    }
+
+    .secondary-item-title {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .secondary-item-meta {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .secondary-item-badge {
+      justify-self: start;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(179, 79, 46, 0.08);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .editor-panel {
+      min-width: 0;
+    }
+
+    .editor-panel .card-head {
+      margin-bottom: 12px;
+    }
+
+    .editor-tip {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(216, 167, 116, 0.12);
+      border: 1px solid rgba(179, 79, 46, 0.1);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .preset-card {
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+    }
+
+    .preset-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(33, 26, 20, 0.08);
+    }
+
+    .preset-card.active {
+      border-color: rgba(179, 79, 46, 0.4);
+      box-shadow: inset 0 0 0 1px rgba(179, 79, 46, 0.2);
+    }
+
+    .preset-title-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .preset-actions,
+    .mini-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .mini-actions button,
+    .preset-actions button {
+      padding: 9px 13px;
+      font-size: 13px;
+    }
+
+    .editor-card {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      min-width: 0;
+    }
+
+    .inline-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .empty-state {
+      padding: 22px;
+      border-radius: 18px;
+      background: rgba(33, 26, 20, 0.04);
+      border: 1px dashed rgba(33, 26, 20, 0.12);
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .accent-card {
+      background: linear-gradient(180deg, rgba(255, 247, 238, 0.96), rgba(255, 251, 245, 0.96));
+      border-color: rgba(179, 79, 46, 0.16);
+    }
+
+    .muted-box {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(33, 26, 20, 0.05);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .guide-box {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(216, 167, 116, 0.12);
+      border: 1px solid rgba(179, 79, 46, 0.12);
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 14px;
+    }
+
+    .guide-box strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+
+    .jump-target {
+      scroll-margin-top: 20px;
+      transition: box-shadow 180ms ease, border-color 180ms ease, transform 180ms ease;
+    }
+
+    .jump-target.is-targeted {
+      border-color: rgba(179, 79, 46, 0.45);
+      box-shadow: 0 0 0 4px rgba(179, 79, 46, 0.12), var(--shadow);
+      transform: translateY(-2px);
+    }
+
+    .global-jump {
+      position: fixed;
+      right: 22px;
+      top: 22px;
+      z-index: 20;
+      display: grid;
+      gap: 6px;
+      width: min(92px, calc(100vw - 24px));
+      padding: 0;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      backdrop-filter: none;
+    }
+
+    .global-jump-actions {
+      display: grid;
+      gap: 6px;
+    }
+
+    .global-jump-btn {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 999px;
+      box-shadow: none;
+      font-size: 12px;
+      font-weight: 800;
+      color: #fffaf5;
+      backdrop-filter: blur(8px);
+    }
+
+    .global-jump-btn.secondary {
+      background: rgba(40, 74, 61, 0.48);
+    }
+
+    .global-jump-btn.soft {
+      background: rgba(216, 167, 116, 0.52);
+    }
+
+    .global-jump-btn:hover {
+      box-shadow: none;
+    }
+
+    @media (max-width: 1280px) {
+      .hero,
+      .board-head,
+      .workspace,
+      .wardrobe-shell,
+      .preset-layout,
+      .library-layout,
+      .catalog-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-side,
+      .board-stats,
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .wardrobe-nav {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 860px) {
+      .shell {
+        padding: 16px;
+      }
+
+      .grid,
+      .grid-3,
+      .inline-grid,
+      .slot-grid,
+      .option-grid,
+      .hero-side,
+      .board-stats,
+      .summary-grid,
+      .wardrobe-nav {
+        grid-template-columns: 1fr;
+      }
+
+      .preset-list,
+      .library-list,
+      .preset-editor-scroll,
+      .secondary-list {
+        max-height: none;
+        overflow: visible;
+        padding-right: 0;
+      }
+
+      .global-jump {
+        right: 16px;
+        top: 16px;
+        width: min(84px, calc(100vw - 24px));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="global-jump" aria-label="全局导航">
+    <div class="global-jump-actions">
+      <button class="secondary global-jump-btn" type="button" data-jump-target="generationPanel">看图</button>
+      <button class="soft global-jump-btn" type="button" data-jump-target="wardrobeBoard">衣柜</button>
+    </div>
+  </div>
+
+  <div class="shell">
+    <section class="hero">
+      <div class="panel hero-main">
+        <div class="eyebrow">NAI Artist WebUI</div>
+        <h1>简单出图与换装面板</h1>
+        <p class="lead">把这个页面理解成两个部分就行：上半部分负责出图，下半部分负责换衣服。第一次使用时，你只需要选一个模式，写一句你想看到的画面描述，然后先检查翻译结果，再决定要不要正式出图。</p>
+      </div>
+      <div class="panel hero-side">
+        <div class="stat"><small>当前模式</small><strong id="hero-mode">photo</strong></div>
+        <div class="stat"><small>NAI 模型</small><strong id="hero-model">-</strong></div>
+        <div class="stat"><small>翻译模型</small><strong id="hero-translate-model">-</strong></div>
+        <div class="stat"><small>当前预设</small><strong id="hero-outfit">未绑定</strong></div>
+        <div class="stat"><small>每日轮换</small><strong id="hero-auto-daily">-</strong></div>
+        <div class="stat"><small>衣柜数据文件</small><strong id="hero-wardrobe-file">-</strong></div>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="column">
+        <div class="panel section">
+          <h2>基础设定</h2>
+          <p class="section-note">不懂代码也没关系。这里可以理解成“角色的固定信息”和“画面的基础风格”。大多数情况下，只需要改角色外貌、想固定保留的元素，以及不想出现的问题。</p>
+          <div class="grid">
+            <div class="stack">
+              <label for="baseTags">角色固定外貌</label>
+              <div class="field-help">这里写角色平时不会变的长相和特征，比如发色、眼睛、耳朵、常穿的基础衣物。photo 模式会优先参考这里。</div>
+              <textarea id="baseTags" placeholder="例如：银发、蓝眼、白裙、狐耳"></textarea>
+            </div>
+            <div class="stack">
+              <label for="fixedTags">每张照片都尽量保留的固定元素</label>
+              <div class="field-help">如果你希望某些元素几乎每次都带上，比如“狐娘”“铃铛项圈”“制服外套”，可以写在这里。</div>
+              <textarea id="fixedTags" placeholder="例如：狐娘、铃铛项圈、校服外套"></textarea>
+            </div>
+            <div class="stack">
+              <label for="negativeTags">尽量不要出现的问题</label>
+              <div class="field-help">这里用来压制常见坏图问题，比如手部错误、文字水印、模糊等。通常保留默认值即可。</div>
+              <textarea id="negativeTags" placeholder="例如：模糊、坏手、文字、水印"></textarea>
+            </div>
+            <div class="stack">
+              <label for="photoStyleTags">照片模式的整体风格</label>
+              <div class="field-help">决定 photo 模式整体看起来像什么样。默认已经能用，除非你很清楚自己想改风格，否则可以先不动。</div>
+              <textarea id="photoStyleTags" placeholder="例如：更像手机拍照、光线柔和、构图自然"></textarea>
+            </div>
+            <div class="stack">
+              <label for="drawingStyleTags">手绘模式的整体风格</label>
+              <div class="field-help">决定 drawing 模式更像速写、插画还是涂鸦。默认也已经够用，先熟悉流程再调整即可。</div>
+              <textarea id="drawingStyleTags" placeholder="例如：更像手绘、线条明显、草稿感"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel section">
+          <h2>这次想生成什么</h2>
+          <p class="section-note">最重要的是下面这段“自然语言描述”。你只要像聊天一样写中文，系统会先理解你的描述，再自动翻成适合出图的内容。宽高和步数一般保持默认就够了。</p>
+          <div class="grid">
+            <div class="field">
+              <label for="mode">生成方式</label>
+              <select id="mode">
+                <option value="photo">photo：像拍照一样的图</option>
+                <option value="drawing">drawing：像手绘一样的图</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="configPath">当前使用的配置文件</label>
+              <input id="configPath" readonly />
+            </div>
+          </div>
+          <div class="grid-3" style="margin-top: 14px;">
+            <div class="field">
+              <label for="modeWidth">宽度</label>
+              <input id="modeWidth" type="number" min="64" step="64" />
+            </div>
+            <div class="field">
+              <label for="modeHeight">高度</label>
+              <input id="modeHeight" type="number" min="64" step="64" />
+            </div>
+            <div class="field">
+              <label for="modeSteps">细化步数</label>
+              <input id="modeSteps" type="number" min="1" max="28" />
+            </div>
+          </div>
+          <div class="stack" style="margin-top: 14px;">
+            <label for="description">自然语言描述</label>
+            <div class="field-help">直接写你想看到的画面就行，例如人物动作、表情、衣服、场景、光线、气氛。写得越具体，结果通常越稳定。</div>
+            <textarea id="description" placeholder="例如：我穿着居家上衣坐在窗边，早晨的光线很柔和，看向镜头微笑，房间干净安静"></textarea>
+          </div>
+          <div class="editor-card accent-card" style="margin-top: 14px;">
+            <div class="card-head">
+              <div>
+                <div class="card-title">出图前快速换一套预设</div>
+                <p class="card-subtitle">如果你已经存过整套穿搭，就不用再去下方逐件切换。先选一套，再决定是只拿它试一张，还是套用到这次 WebUI 的测试穿搭。不会直接改 bot 的真实当前穿搭。</p>
+              </div>
+              <button class="ghost" id="quickPresetEditBtn">跳到预设编辑</button>
+            </div>
+            <div class="inline-grid">
+              <div class="field">
+                <label for="quickPresetSelect">快速选择一套预设</label>
+                <select id="quickPresetSelect">
+                  <option value="">还没有任何预设</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>当前选中说明</label>
+                <div id="quickPresetSummary" class="muted-box">还没有任何预设。先到下方换装面板保存一套，就能在这里快速切换。</div>
+              </div>
+            </div>
+            <div class="stack" style="margin-top: 12px;">
+              <label>这套预设会带入的衣服 tags</label>
+              <div id="quickPresetTags" class="tag-strip is-empty">还没有任何预设</div>
+            </div>
+            <div class="mini-actions">
+              <button class="soft" id="quickPresetPreviewBtn">只预览这套</button>
+              <button class="secondary" id="quickPresetApplyBtn">套用到测试穿搭</button>
+            </div>
+          </div>
+          <div class="toolbar">
+            <label class="toggle"><input id="saveToggle" type="checkbox" /> 把这次修改永久保存到配置文件</label>
+            <button class="ghost" id="reloadConfigBtn">重新载入当前配置</button>
+            <button class="ghost" id="saveConfigBtn">只保存当前设置</button>
+            <button class="secondary" id="translateBtn">先检查翻译结果</button>
+            <button class="primary" id="generateBtn">直接出图预览</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="column">
+        <div class="panel section">
+          <h2>系统是怎么理解你的</h2>
+          <p class="section-note">这里不是给程序员看的。你可以把它理解成：系统先把你的中文描述拆成画面要素，再把这些要素和衣服、风格组合起来，变成最终真正发给模型的内容。</p>
+          <div class="stack">
+            <label>当前穿搭附加内容</label>
+            <div id="outfitTags" class="result-box"></div>
+          </div>
+          <div class="stack" style="margin-top: 14px;">
+            <label>系统拆出来的画面要素</label>
+            <div id="translatedTags" class="result-box"></div>
+          </div>
+          <div class="stack" style="margin-top: 14px;">
+            <label>最终发送给模型的完整内容</label>
+            <div id="finalPrompt" class="result-box"></div>
+          </div>
+        </div>
+
+        <div class="panel section jump-target" id="generationPanel">
+          <h2>结果预览</h2>
+          <p class="section-note">如果你只是想先确认描述有没有被理解对，先点上面的“先检查翻译结果”。确认没问题后，再点“直接出图预览”。</p>
+          <div class="preview" id="previewBox">
+            <div class="status">尚未出图</div>
+          </div>
+          <div class="toolbar" style="margin-top: 14px;">
+            <div class="status" id="statusText">等待操作</div>
+            <button class="ghost" id="copyPromptBtn">复制完整提示词</button>
+          </div>
+          <div class="status error" id="errorText"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel wardrobe-board" id="wardrobeBoard">
+      <div class="board-head">
+        <div>
+          <div class="eyebrow">Wardrobe Studio</div>
+          <h2 style="margin-top: 12px; font-size: 28px;">衣柜控制台</h2>
+          <p class="lead">这里是给角色试衣服的地方。你可以在 WebUI 里搭一套测试穿搭，也可以保存成一整套预设。photo 模式预览时，会自动把当前测试穿搭带进去，所以这里改完以后，重新预览就能马上看到变化；默认不会直接写回 bot 的真实当前穿搭。</p>
+        </div>
+        <div class="board-stats">
+          <div class="stat"><small>测试穿搭预设</small><strong id="board-active-preset">未绑定</strong></div>
+          <div class="stat"><small>每日池大小</small><strong id="board-daily-count">0</strong></div>
+          <div class="stat"><small>上次生成描述</small><strong id="board-last-description">-</strong></div>
+          <div class="stat"><small>上次翻译 tags</small><strong id="board-last-tags">-</strong></div>
+        </div>
+      </div>
+      <div class="wardrobe-shell">
+        <aside class="wardrobe-nav">
+          <button class="nav-btn active" data-view="current">当前</button>
+          <button class="nav-btn" data-view="presets">预设</button>
+          <button class="nav-btn" data-view="top">上衣</button>
+          <button class="nav-btn" data-view="bottom">下装</button>
+          <button class="nav-btn" data-view="outerwear">外套</button>
+          <button class="nav-btn" data-view="shoes">鞋子</button>
+          <button class="nav-btn" data-view="accessories">饰品</button>
+        </aside>
+        <section class="wardrobe-main">
+          <div id="wardrobeContent"></div>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const SLOT_LABELS = {
+      current: '当前穿搭',
+      presets: '套装预设',
+      top: '上衣',
+      bottom: '下装',
+      outerwear: '外套',
+      shoes: '鞋子',
+      accessories: '配饰',
+    };
+
+    const SLOT_ICONS = {
+      top: '衣',
+      bottom: '裤',
+      outerwear: '套',
+      shoes: '鞋',
+      accessories: '饰',
+    };
+
+    const SINGLE_SLOTS = ['top', 'bottom', 'outerwear', 'shoes'];
+    const SECONDARY_VIEWS = ['presets', 'top', 'bottom', 'outerwear', 'shoes', 'accessories'];
+    const SECONDARY_DRAFT_KEY = '__draft__';
+
+    function createSecondaryViewMap(initialValue) {
+      return SECONDARY_VIEWS.reduce((accumulator, view) => {
+        accumulator[view] = initialValue;
+        return accumulator;
+      }, {});
+    }
+
+    const state = {
+      config: null,
+      wardrobe: null,
+      currentWardrobeView: 'current',
+      selectedPreset: null,
+      selectedSlotOption: createSecondaryViewMap(null),
+      draftSecondary: createSecondaryViewMap(false),
+      savedSecondary: createSecondaryViewMap(null),
+      quickPresetName: null,
+      lastGenerated: null,
+    };
+
+    const el = {
+      mode: document.getElementById('mode'),
+      configPath: document.getElementById('configPath'),
+      baseTags: document.getElementById('baseTags'),
+      fixedTags: document.getElementById('fixedTags'),
+      negativeTags: document.getElementById('negativeTags'),
+      photoStyleTags: document.getElementById('photoStyleTags'),
+      drawingStyleTags: document.getElementById('drawingStyleTags'),
+      modeWidth: document.getElementById('modeWidth'),
+      modeHeight: document.getElementById('modeHeight'),
+      modeSteps: document.getElementById('modeSteps'),
+      description: document.getElementById('description'),
+      quickPresetSelect: document.getElementById('quickPresetSelect'),
+      quickPresetSummary: document.getElementById('quickPresetSummary'),
+      quickPresetTags: document.getElementById('quickPresetTags'),
+      quickPresetPreviewBtn: document.getElementById('quickPresetPreviewBtn'),
+      quickPresetApplyBtn: document.getElementById('quickPresetApplyBtn'),
+      quickPresetEditBtn: document.getElementById('quickPresetEditBtn'),
+      outfitTags: document.getElementById('outfitTags'),
+      translatedTags: document.getElementById('translatedTags'),
+      finalPrompt: document.getElementById('finalPrompt'),
+      generationPanel: document.getElementById('generationPanel'),
+      previewBox: document.getElementById('previewBox'),
+      statusText: document.getElementById('statusText'),
+      errorText: document.getElementById('errorText'),
+      heroMode: document.getElementById('hero-mode'),
+      heroModel: document.getElementById('hero-model'),
+      heroTranslateModel: document.getElementById('hero-translate-model'),
+      heroOutfit: document.getElementById('hero-outfit'),
+      heroAutoDaily: document.getElementById('hero-auto-daily'),
+      heroWardrobeFile: document.getElementById('hero-wardrobe-file'),
+      boardActivePreset: document.getElementById('board-active-preset'),
+      boardDailyCount: document.getElementById('board-daily-count'),
+      boardLastDescription: document.getElementById('board-last-description'),
+      boardLastTags: document.getElementById('board-last-tags'),
+      saveToggle: document.getElementById('saveToggle'),
+      reloadConfigBtn: document.getElementById('reloadConfigBtn'),
+      saveConfigBtn: document.getElementById('saveConfigBtn'),
+      translateBtn: document.getElementById('translateBtn'),
+      generateBtn: document.getElementById('generateBtn'),
+      copyPromptBtn: document.getElementById('copyPromptBtn'),
+      wardrobeBoard: document.getElementById('wardrobeBoard'),
+      wardrobeContent: document.getElementById('wardrobeContent'),
+      navButtons: Array.from(document.querySelectorAll('.nav-btn')),
+      jumpButtons: Array.from(document.querySelectorAll('[data-jump-target]')),
+    };
+
+    let jumpTargetTimer = null;
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, '&#96;');
+    }
+
+    function renderTagStrip(tags) {
+      if (!tags) {
+        return '<div class="tag-strip is-empty">未设置 tags</div>';
+      }
+      return `<div class="tag-strip">${escapeHtml(tags)}</div>`;
+    }
+
+    function mergeTags(tagGroups) {
+      const merged = [];
+      const seen = new Set();
+      tagGroups.forEach((group) => {
+        String(group || '')
+          .replace(/，/g, ',')
+          .replace(/、/g, ',')
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean)
+          .forEach((tag) => {
+            const key = tag.toLowerCase();
+            if (seen.has(key)) {
+              return;
+            }
+            seen.add(key);
+            merged.push(tag);
+          });
+      });
+      return merged.join(', ');
+    }
+
+    function optionList(slot) {
+      return state.wardrobe?.slot_options?.[slot] || [];
+    }
+
+    function findOption(slot, name) {
+      if (!name) {
+        return null;
+      }
+      return optionList(slot).find((item) => item.name === name) || null;
+    }
+
+    function currentResolvedTags() {
+      if (!state.wardrobe) {
+        return '';
+      }
+      const slots = state.wardrobe.state.slots;
+      const groups = [];
+      SINGLE_SLOTS.forEach((slot) => {
+        const option = findOption(slot, slots[slot]);
+        if (option?.tags) {
+          groups.push(option.tags);
+        }
+      });
+      (slots.accessories || []).forEach((name) => {
+        const option = findOption('accessories', name);
+        if (option?.tags) {
+          groups.push(option.tags);
+        }
+      });
+      return mergeTags(groups);
+    }
+
+    function presetResolvedTags(presetName) {
+      const preset = state.wardrobe?.presets?.[presetName];
+      if (!preset) {
+        return '';
+      }
+      const groups = [];
+      SINGLE_SLOTS.forEach((slot) => {
+        const option = findOption(slot, preset[slot]);
+        if (option?.tags) {
+          groups.push(option.tags);
+        }
+      });
+      (preset.accessories || []).forEach((name) => {
+        const option = findOption('accessories', name);
+        if (option?.tags) {
+          groups.push(option.tags);
+        }
+      });
+      return mergeTags(groups);
+    }
+
+    function buildPresetSelect(selectedName, attributeName) {
+      const presetNames = Object.keys(state.wardrobe?.presets || {});
+      const options = presetNames.length
+        ? [`<option value="" ${selectedName ? '' : 'selected'}>暂时不选预设</option>`]
+          .concat(presetNames.map((name) => `<option value="${escapeAttr(name)}" ${name === selectedName ? 'selected' : ''}>${escapeHtml(name)}</option>`))
+          .join('')
+        : '<option value="">还没有任何预设</option>';
+      return `<select ${attributeName} ${presetNames.length ? '' : 'disabled'}>${options}</select>`;
+    }
+
+    function hasAnyPresets() {
+      return Boolean(Object.keys(state.wardrobe?.presets || {}).length);
+    }
+
+    function resolveQuickPresetName(preferredName = state.quickPresetName, respectEmptyChoice = false) {
+      const presets = state.wardrobe?.presets || {};
+      if (respectEmptyChoice && preferredName === '') {
+        return null;
+      }
+      if (preferredName && presets[preferredName]) {
+        return preferredName;
+      }
+      const activePreset = state.wardrobe?.state?.active_preset;
+      if (activePreset && presets[activePreset]) {
+        return activePreset;
+      }
+      if (state.selectedPreset && presets[state.selectedPreset]) {
+        return state.selectedPreset;
+      }
+      return Object.keys(presets)[0] || null;
+    }
+
+    function getQuickPresetChoiceForApply() {
+      if (state.quickPresetName === '') {
+        return '';
+      }
+      return resolveQuickPresetName(state.quickPresetName);
+    }
+
+    function describePresetSelection(presetName) {
+      if (!presetName && Object.keys(state.wardrobe?.presets || {}).length) {
+        return '当前没有额外套用任何服装预设，适合测试自然语言里临时写的待定服装。';
+      }
+      const preset = presetName ? state.wardrobe?.presets?.[presetName] : null;
+      if (!preset) {
+        return '还没有任何预设。先到下方换装面板保存一套，就能在这里快速切换。';
+      }
+      const activePreset = state.wardrobe?.state?.active_preset;
+      const summaryParts = [preset.description || '这套预设还没有写说明。'];
+      if (activePreset === presetName) {
+        summaryParts.push('这套现在已经是当前穿搭。');
+      } else {
+        summaryParts.push('这套还没有真正穿上，点“应用到当前”后才会生效。');
+      }
+      return summaryParts.join(' ');
+    }
+
+    function syncQuickPresetControls() {
+      const presetNames = Object.keys(state.wardrobe?.presets || {});
+      const selectedName = resolveQuickPresetName(state.quickPresetName, true);
+      const selectedTags = selectedName ? presetResolvedTags(selectedName) : '';
+
+      if (state.quickPresetName !== '') {
+        state.quickPresetName = selectedName;
+      }
+      el.quickPresetSelect.innerHTML = presetNames.length
+        ? ['<option value="">暂时不套用预设</option>']
+          .concat(presetNames.map((name) => `<option value="${escapeAttr(name)}">${escapeHtml(name)}</option>`))
+          .join('')
+        : '<option value="">还没有任何预设</option>';
+      el.quickPresetSelect.disabled = !presetNames.length;
+      el.quickPresetSelect.value = selectedName || '';
+      el.quickPresetSummary.textContent = describePresetSelection(selectedName);
+      el.quickPresetTags.textContent = selectedTags || (selectedName
+        ? '这套预设暂时没有可注入的衣服 tags'
+        : (presetNames.length ? '当前不额外注入任何预设服装 tags' : '还没有任何预设'));
+      el.quickPresetTags.classList.toggle('is-empty', !selectedTags);
+      el.quickPresetPreviewBtn.disabled = !selectedName;
+      el.quickPresetApplyBtn.disabled = !presetNames.length;
+      el.quickPresetEditBtn.disabled = !selectedName;
+    }
+
+    function setQuickPresetName(name) {
+      clearSavedSecondary();
+      state.quickPresetName = name === '' ? '' : (name || null);
+      syncQuickPresetControls();
+      if (state.currentWardrobeView === 'current') {
+        renderWardrobe();
+      }
+    }
+
+    function clearSavedSecondary(view = null) {
+      if (view) {
+        state.savedSecondary[view] = null;
+        return;
+      }
+      SECONDARY_VIEWS.forEach((itemView) => {
+        state.savedSecondary[itemView] = null;
+      });
+    }
+
+    function getSelectedSecondaryKey(view) {
+      return view === 'presets' ? state.selectedPreset : state.selectedSlotOption[view];
+    }
+
+    function setSelectedSecondaryKey(view, key) {
+      if (view === 'presets') {
+        state.selectedPreset = key;
+        return;
+      }
+      state.selectedSlotOption[view] = key;
+    }
+
+    function getEditorSecondaryKey(view) {
+      return state.draftSecondary[view] ? SECONDARY_DRAFT_KEY : getSelectedSecondaryKey(view);
+    }
+
+    function beginSecondaryDraft(view) {
+      clearSavedSecondary();
+      state.draftSecondary[view] = true;
+      setSelectedSecondaryKey(view, null);
+    }
+
+    function beginSecondarySelection(view, key) {
+      clearSavedSecondary();
+      state.draftSecondary[view] = false;
+      setSelectedSecondaryKey(view, key);
+    }
+
+    function markSecondarySaved(view, key) {
+      clearSavedSecondary();
+      state.draftSecondary[view] = false;
+      setSelectedSecondaryKey(view, key);
+      state.savedSecondary[view] = key;
+    }
+
+    function ensureSecondarySelection(view) {
+      if (view === 'presets') {
+        if (state.draftSecondary.presets) {
+          return;
+        }
+        const presetNames = Object.keys(state.wardrobe?.presets || {});
+        if (state.selectedPreset && state.wardrobe?.presets?.[state.selectedPreset]) {
+          return;
+        }
+        state.selectedPreset = presetNames[0] || null;
+        return;
+      }
+
+      if (state.draftSecondary[view]) {
+        return;
+      }
+
+      const options = optionList(view);
+      if (state.selectedSlotOption[view] && options.some((item) => item.name === state.selectedSlotOption[view])) {
+        return;
+      }
+      state.selectedSlotOption[view] = options[0]?.name || null;
+    }
+
+    function getSecondaryItemClasses(view, key) {
+      const classes = ['secondary-item'];
+      if (state.savedSecondary[view] === key) {
+        classes.push('is-saved');
+      } else if (getEditorSecondaryKey(view) === key) {
+        classes.push('is-active');
+      }
+      if (key === SECONDARY_DRAFT_KEY) {
+        classes.push('is-draft');
+      }
+      return classes.join(' ');
+    }
+
+    function updateSecondaryItemClasses() {
+      el.wardrobeContent.querySelectorAll('[data-secondary-view][data-secondary-key]').forEach((item) => {
+        const view = item.dataset.secondaryView;
+        const key = item.dataset.secondaryKey;
+        item.className = getSecondaryItemClasses(view, key);
+      });
+    }
+
+    function markCurrentEditorAsEditing() {
+      const view = state.currentWardrobeView;
+      if (!SECONDARY_VIEWS.includes(view)) {
+        return;
+      }
+      if (!state.savedSecondary[view]) {
+        return;
+      }
+      state.savedSecondary[view] = null;
+      updateSecondaryItemClasses();
+    }
+
+    function captureWardrobeScrollState() {
+      return {
+        secondaryListTop: el.wardrobeContent.querySelector('.secondary-list')?.scrollTop ?? null,
+      };
+    }
+
+    function restoreWardrobeScrollState(scrollState) {
+      if (!scrollState) {
+        return;
+      }
+
+      requestAnimationFrame(() => {
+        const secondaryList = el.wardrobeContent.querySelector('.secondary-list');
+
+        if (secondaryList && typeof scrollState.secondaryListTop === 'number') {
+          secondaryList.scrollTop = scrollState.secondaryListTop;
+        }
+      });
+    }
+
+    function rerenderWardrobe(preserveScroll = false) {
+      const scrollState = preserveScroll ? captureWardrobeScrollState() : null;
+      renderWardrobe(scrollState);
+    }
+
+    function scrollWardrobeContainerToTop(selector) {
+      const container = el.wardrobeContent.querySelector(selector);
+      if (!container) {
+        return;
+      }
+      container.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function jumpToPresetEditor(presetName = state.quickPresetName) {
+      const targetName = resolveQuickPresetName(presetName);
+      if (!targetName) {
+        setError('还没有可编辑的预设');
+        return;
+      }
+      state.quickPresetName = targetName;
+      state.selectedPreset = targetName;
+      state.currentWardrobeView = 'presets';
+      renderWardrobe();
+      el.wardrobeBoard?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el.statusText.textContent = `已跳到预设编辑：${targetName}`;
+    }
+
+    function buildOptionSelect(slot, selectedName) {
+      const options = optionList(slot);
+      const optionHtml = ['<option value="">未穿</option>']
+        .concat(options.map((item) => {
+          const selected = item.name === selectedName ? 'selected' : '';
+          return `<option value="${escapeAttr(item.name)}" ${selected}>${escapeHtml(item.name)}</option>`;
+        }))
+        .join('');
+      return `<select data-slot-current="${slot}">${optionHtml}</select>`;
+    }
+
+    function buildAccessoryCheckboxes(selectedNames, prefix) {
+      const selected = new Set(selectedNames || []);
+      const options = optionList('accessories');
+      if (!options.length) {
+        return '<div class="empty-state">配饰槽还没有选项，先去“配饰”页新增。</div>';
+      }
+      return `<div class="checkbox-list">${options.map((item) => `
+        <label class="checkbox-item">
+          <input type="checkbox" data-${prefix}-accessory value="${escapeAttr(item.name)}" ${selected.has(item.name) ? 'checked' : ''} />
+          <div class="checkbox-copy">
+            <strong>${escapeHtml(item.name)}</strong>
+            <span>${escapeHtml(item.description || '未填写描述')}</span>
+          </div>
+        </label>
+      `).join('')}</div>`;
+    }
+
+    function getCurrentViewDraftSlots() {
+      const persistedSlots = state.wardrobe?.state?.slots || {};
+      const draftSlots = {
+        top: persistedSlots.top || null,
+        bottom: persistedSlots.bottom || null,
+        outerwear: persistedSlots.outerwear || null,
+        shoes: persistedSlots.shoes || null,
+        accessories: Array.isArray(persistedSlots.accessories) ? [...persistedSlots.accessories] : [],
+      };
+
+      SINGLE_SLOTS.forEach((slot) => {
+        const select = el.wardrobeContent.querySelector(`select[data-slot-current="${slot}"]`);
+        if (select) {
+          draftSlots[slot] = select.value || null;
+        }
+      });
+
+      const accessoryInputs = el.wardrobeContent.querySelectorAll('[data-current-accessory]');
+      if (accessoryInputs.length) {
+        draftSlots.accessories = Array.from(
+          el.wardrobeContent.querySelectorAll('[data-current-accessory]:checked')
+        ).map((item) => item.value);
+      }
+
+      return draftSlots;
+    }
+
+    function getScopedOverrides() {
+      const mode = el.mode.value;
+      const overrides = {
+        base_tags: el.baseTags.value,
+        fixed_tags: el.fixedTags.value,
+        negative_tags: el.negativeTags.value,
+        photo_style_tags: el.photoStyleTags.value,
+        drawing_style_tags: el.drawingStyleTags.value,
+      };
+      if (mode === 'photo') {
+        return {
+          ...overrides,
+          photo_width: Number(el.modeWidth.value),
+          photo_height: Number(el.modeHeight.value),
+          photo_steps: Number(el.modeSteps.value),
+        };
+      }
+      return {
+        ...overrides,
+        drawing_width: Number(el.modeWidth.value),
+        drawing_height: Number(el.modeHeight.value),
+        drawing_steps: Number(el.modeSteps.value),
+      };
+    }
+
+    function syncModeFields() {
+      if (!state.config) {
+        return;
+      }
+      const mode = el.mode.value;
+      const section = mode === 'photo' ? state.config.photo : state.config.drawing;
+      el.modeWidth.value = section.width;
+      el.modeHeight.value = section.height;
+      el.modeSteps.value = section.steps;
+      el.heroMode.textContent = mode;
+    }
+
+    function updateWardrobeStats() {
+      const activePreset = state.wardrobe?.state?.active_preset;
+      const lastGenerated = state.lastGenerated;
+      el.heroOutfit.textContent = activePreset || '自定义或未绑定';
+      el.boardActivePreset.textContent = activePreset || '自定义或未绑定';
+      el.boardDailyCount.textContent = String(state.wardrobe?.daily_pool?.length || 0);
+      el.boardLastDescription.textContent = lastGenerated?.description || '-';
+      el.boardLastTags.textContent = lastGenerated?.translatedTags || '-';
+    }
+
+    function fillConfig(data) {
+      state.config = data;
+      el.configPath.value = data.configPath;
+      el.baseTags.value = data.character.baseTags;
+      el.fixedTags.value = data.character.fixedTags;
+      el.negativeTags.value = data.character.negativeTags;
+      el.photoStyleTags.value = data.photo.styleTags;
+      el.drawingStyleTags.value = data.drawing.styleTags;
+      el.heroModel.textContent = data.api.model || '-';
+      el.heroTranslateModel.textContent = data.api.translateModel || '(fallback utils_small)';
+      el.heroAutoDaily.textContent = data.wardrobe.enabled ? (data.wardrobe.autoDaily ? '已开启' : '已关闭') : '衣柜已停用';
+      el.heroWardrobeFile.textContent = data.wardrobe.dataFile || '-';
+      syncModeFields();
+      updateWardrobeStats();
+    }
+
+    function setBusy(isBusy, text) {
+      [el.reloadConfigBtn, el.saveConfigBtn, el.translateBtn, el.generateBtn, el.copyPromptBtn].forEach((button) => {
+        button.disabled = isBusy;
+      });
+      const hasAnyPreset = hasAnyPresets();
+      const hasSelectedPreset = Boolean(resolveQuickPresetName(state.quickPresetName, true));
+      el.quickPresetSelect.disabled = isBusy || !hasAnyPreset;
+      el.quickPresetPreviewBtn.disabled = isBusy || !hasSelectedPreset;
+      el.quickPresetApplyBtn.disabled = isBusy || !hasAnyPreset;
+      el.quickPresetEditBtn.disabled = isBusy || !hasSelectedPreset;
+      el.statusText.textContent = text;
+    }
+
+    function setError(message) {
+      el.errorText.textContent = message || '';
+    }
+
+    function jumpToPanel(targetId) {
+      const target = document.getElementById(targetId);
+      if (!target) {
+        return;
+      }
+
+      if (jumpTargetTimer) {
+        window.clearTimeout(jumpTargetTimer);
+      }
+      document.querySelectorAll('.jump-target.is-targeted').forEach((item) => {
+        item.classList.remove('is-targeted');
+      });
+
+      target.classList.add('is-targeted');
+      jumpTargetTimer = window.setTimeout(() => {
+        target.classList.remove('is-targeted');
+      }, 1600);
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderResult(data, withImage) {
+      clearSavedSecondary();
+      el.outfitTags.textContent = data.outfitTags || '(当前未注入 outfit_tags)';
+      el.translatedTags.textContent = data.translatedTags || '(空)';
+      el.finalPrompt.textContent = data.finalPrompt || '(空)';
+      setError('');
+
+      state.lastGenerated = {
+        description: el.description.value.trim(),
+        translatedTags: data.translatedTags || '',
+        finalPrompt: data.finalPrompt || '',
+        outfitTags: data.outfitTags || '',
+        imageDataUrl: data.imageDataUrl || null,
+      };
+      updateWardrobeStats();
+
+      if (withImage && data.imageDataUrl) {
+        el.previewBox.innerHTML = `<img alt="preview" src="${data.imageDataUrl}" />`;
+      } else if (!withImage) {
+        el.previewBox.innerHTML = '<div class="status">未请求出图，仅展示翻译和最终 Prompt</div>';
+      }
+
+      if (state.wardrobe) {
+        renderWardrobe();
+      }
+    }
+
+    async function api(url, options = {}) {
+      const mountBase = window.location.pathname.replace(/\/$/, '');
+      const targetUrl = mountBase ? `${mountBase}${url}` : url;
+      const response = await fetch(targetUrl, {
+        headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
+        ...options,
+      });
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : {};
+      if (!response.ok) {
+        throw new Error(data.detail || `HTTP ${response.status}`);
+      }
+      return data;
+    }
+
+    async function loadConfig(silent = false) {
+      if (!silent) {
+        setBusy(true, '正在读取配置...');
+      }
+      try {
+        const data = await api('/api/config');
+        fillConfig(data);
+        if (!silent) {
+          setBusy(false, '配置已加载');
+        }
+      } catch (error) {
+        setError(String(error.message || error));
+        if (!silent) {
+          setBusy(false, '读取配置失败');
+        }
+      }
+    }
+
+    async function loadWardrobe(silent = false, preserveScroll = false) {
+      const scrollState = preserveScroll ? captureWardrobeScrollState() : null;
+      try {
+        const data = await api('/api/wardrobe');
+        state.wardrobe = data;
+        if (!state.selectedPreset || !data.presets[state.selectedPreset]) {
+          state.selectedPreset = Object.keys(data.presets)[0] || null;
+        }
+        if (state.quickPresetName !== '') {
+          state.quickPresetName = resolveQuickPresetName(state.quickPresetName);
+        }
+        SECONDARY_VIEWS.filter((view) => view !== 'presets').forEach((view) => {
+          if (state.selectedSlotOption[view] && !data.slot_options?.[view]?.some((item) => item.name === state.selectedSlotOption[view])) {
+            state.selectedSlotOption[view] = null;
+          }
+          if (state.savedSecondary[view] && !data.slot_options?.[view]?.some((item) => item.name === state.savedSecondary[view])) {
+            state.savedSecondary[view] = null;
+          }
+        });
+        if (state.savedSecondary.presets && !data.presets[state.savedSecondary.presets]) {
+          state.savedSecondary.presets = null;
+        }
+        renderWardrobe(scrollState);
+        syncQuickPresetControls();
+        updateWardrobeStats();
+        if (!silent) {
+          el.statusText.textContent = '衣柜已同步';
+        }
+      } catch (error) {
+        setError(String(error.message || error));
+        if (!silent) {
+          el.statusText.textContent = '衣柜读取失败';
+        }
+      }
+    }
+
+    async function maybeSaveBeforeRun() {
+      if (!el.saveToggle.checked) {
+        return;
+      }
+      await api('/api/config/save', {
+        method: 'POST',
+        body: JSON.stringify({ overrides: getScopedOverrides() }),
+      });
+      await loadConfig(true);
+    }
+
+    async function runTranslate() {
+      setBusy(true, '正在翻译并构建最终 Prompt...');
+      try {
+        await maybeSaveBeforeRun();
+        const data = await api('/api/translate', {
+          method: 'POST',
+          body: JSON.stringify({
+            mode: el.mode.value,
+            description: el.description.value,
+            overrides: getScopedOverrides(),
+          }),
+        });
+        renderResult(data, false);
+        setBusy(false, '翻译完成');
+      } catch (error) {
+        setError(String(error.message || error));
+        setBusy(false, '翻译失败');
+      }
+    }
+
+    async function runGenerate() {
+      setBusy(true, '正在调用 NAI 生成图片...');
+      try {
+        await maybeSaveBeforeRun();
+        const data = await api('/api/generate', {
+          method: 'POST',
+          body: JSON.stringify({
+            mode: el.mode.value,
+            description: el.description.value,
+            overrides: getScopedOverrides(),
+          }),
+        });
+        renderResult(data, true);
+        setBusy(false, '出图完成');
+      } catch (error) {
+        setError(String(error.message || error));
+        setBusy(false, '出图失败');
+      }
+    }
+
+    async function saveConfigOnly() {
+      setBusy(true, '正在保存配置...');
+      try {
+        const data = await api('/api/config/save', {
+          method: 'POST',
+          body: JSON.stringify({ overrides: getScopedOverrides() }),
+        });
+        fillConfig(data);
+        setBusy(false, '配置已写回 TOML');
+      } catch (error) {
+        setError(String(error.message || error));
+        setBusy(false, '保存失败');
+      }
+    }
+
+    async function previewWardrobe(presetName = null) {
+      setBusy(true, '正在按测试穿搭生成预览...');
+      try {
+        const data = await api('/api/wardrobe/preview', {
+          method: 'POST',
+          body: JSON.stringify({
+            description: el.description.value,
+            mode: el.mode.value,
+            preset_name: presetName,
+            overrides: getScopedOverrides(),
+          }),
+        });
+        renderResult(data, true);
+        setBusy(false, presetName ? '预设预览完成' : '测试穿搭预览完成');
+      } catch (error) {
+        setError(String(error.message || error));
+        setBusy(false, '衣柜预览失败');
+      }
+    }
+
+    async function applyCurrentSlot(slot, value) {
+      try {
+        await api('/api/wardrobe/state', {
+          method: 'POST',
+          body: JSON.stringify({ slots: { [slot]: value || null } }),
+        });
+        await loadWardrobe(true, true);
+        el.statusText.textContent = `测试穿搭中的${SLOT_LABELS[slot]}已更新`;
+      } catch (error) {
+        setError(String(error.message || error));
+      }
+    }
+
+    async function saveCurrentAccessories() {
+      const selected = Array.from(el.wardrobeContent.querySelectorAll('[data-current-accessory]:checked')).map((item) => item.value);
+      try {
+        await api('/api/wardrobe/state', {
+          method: 'POST',
+          body: JSON.stringify({ accessories: selected }),
+        });
+        await loadWardrobe(true, true);
+        el.statusText.textContent = '测试穿搭中的配饰已更新';
+      } catch (error) {
+        setError(String(error.message || error));
+      }
+    }
+
+    async function saveCurrentAsPreset() {
+      const nameInput = el.wardrobeContent.querySelector('#currentPresetName');
+      const descriptionInput = el.wardrobeContent.querySelector('#currentPresetDescription');
+      const name = nameInput?.value.trim();
+      if (!name) {
+        setError('请先填写预设名称');
+        return;
+      }
+
+      const slots = getCurrentViewDraftSlots();
+      const payload = {
+        name,
+        description: descriptionInput?.value || '',
+        top: slots.top,
+        bottom: slots.bottom,
+        outerwear: slots.outerwear,
+        shoes: slots.shoes,
+        accessories: slots.accessories || [],
+      };
+
+      try {
+        await api('/api/wardrobe/preset', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+        markSecondarySaved('presets', name);
+        state.quickPresetName = name;
+        state.currentWardrobeView = 'presets';
+        await loadWardrobe(true);
+        el.statusText.textContent = '当前穿搭已保存为预设';
+      } catch (error) {
+        setError(String(error.message || error));
+      }
+    }
+
+    async function applyPreset(name) {
+      const isClearingPreset = name === '' || name == null;
+      setBusy(
+        true,
+        isClearingPreset ? '正在取消测试预设绑定...' : `正在把预设套用到测试穿搭：${name}...`
+      );
+      try {
+        await api('/api/wardrobe/state', {
+          method: 'POST',
+          body: JSON.stringify({ preset_name: isClearingPreset ? null : name }),
+        });
+        if (isClearingPreset) {
+          state.quickPresetName = '';
+        } else {
+          state.selectedPreset = name;
+          state.quickPresetName = name;
+        }
+        await loadWardrobe(true, true);
+        setBusy(false, isClearingPreset
+          ? '已取消测试预设绑定，保留当前测试穿搭'
+          : `已套用到测试穿搭：${name}`);
+      } catch (error) {
+        setError(String(error.message || error));
+        setBusy(false, isClearingPreset ? '取消测试预设绑定失败' : '套用测试预设失败');
+      }
+    }
+
+    async function deletePreset(name) {
+      if (!window.confirm(`确定删除预设「${name}」吗？`)) {
+        return;
+      }
+      try {
+        await api(`/api/wardrobe/preset/${encodeURIComponent(name)}`, { method: 'DELETE' });
+        if (state.selectedPreset === name) {
+          state.selectedPreset = null;
+        }
+        if (state.quickPresetName === name) {
+          state.quickPresetName = null;
+        }
+        await loadWardrobe(true, true);
+        el.statusText.textContent = `已删除预设：${name}`;
+      } catch (error) {
+        setError(String(error.message || error));
+      }
+    }
+
+    async function toggleDailyPool(presetName, enabled) {
+      const pool = new Set(state.wardrobe?.daily_pool || []);
+      if (enabled) {
+        pool.add(presetName);
+      } else {
+        pool.delete(presetName);
+      }
+      try {
+        await api('/api/wardrobe/daily-pool', {
+          method: 'POST',
+          body: JSON.stringify({ preset_names: Array.from(pool) }),
+        });
+        await loadWardrobe(true, true);
+        el.statusText.textContent = '每日轮换池已更新';
+      } catch (error) {
+        setError(String(error.message || error));
+      }
+    }
+
+    async function savePresetFromEditor() {
+      const editor = el.wardrobeContent.querySelector('#presetEditor');
+      if (!editor) {
+        return;
+      }
+
+      const originalName = editor.dataset.originalName || '';
+      const name = editor.querySelector('#presetName')?.value.trim();
+      const description = editor.querySelector('#presetDescription')?.value || '';
+      const dailyChecked = Boolean(editor.querySelector('#presetDailyToggle')?.checked);
+
+      if (!name) {
+        setError('请先填写预设名称');
+        return;
+      }
+
+      const payload = {
+        name,
+        description,
+        top: editor.querySelector('[data-preset-slot="top"]')?.value || null,
+        bottom: editor.querySelector('[data-preset-slot="bottom"]')?.value || null,
+        outerwear: editor.querySelector('[data-preset-slot="outerwear"]')?.value || null,
+        shoes: editor.querySelector('[data-preset-slot="shoes"]')?.value || null,
+        accessories: Array.from(editor.querySelectorAll('[data-preset-accessory]:checked')).map((item) => item.value),
+      };
+
+      try {
+        await api('/api/wardrobe/preset', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+        if (originalName && originalName !== name) {
+          await api(`/api/wardrobe/preset/${encodeURIComponent(originalName)}`, { method: 'DELETE' });
+        }
+        const pool = new Set(state.wardrobe?.daily_pool || []);
+        if (originalName && originalName !== name && pool.has(originalName)) {
+          pool.delete(originalName);
+          pool.add(name);
+        }
+        if (dailyChecked) {
+          pool.add(name);
+        } else {
+          pool.delete(name);
+        }
+        await api('/api/wardrobe/daily-pool', {
+          method: 'POST',
+          body: JSON.stringify({ preset_names: Array.from(pool) }),
+        });
+        markSecondarySaved('presets', name);
+        state.quickPresetName = name;
+        await loadWardrobe(true, true);
+        el.statusText.textContent = '预设已保存';
+      } catch (error) {
+        setError(String(error.message || error));
+      }
+    }
+
+    async function saveSlotOption(slot, formRoot, useGenerated = false) {
+      const prefix = useGenerated ? 'quick' : 'new';
+      const originalName = formRoot?.dataset?.originalName?.trim() || '';
+      const name = (
+        formRoot.querySelector('[data-slot-editor-name]')?.value
+        || formRoot.querySelector(`[data-${prefix}-slot-name]`)?.value
+        || ''
+      ).trim();
+      const description = formRoot.querySelector('[data-slot-editor-description]')?.value
+        || formRoot.querySelector(`[data-${prefix}-slot-description]`)?.value
+        || '';
+      const tags = formRoot.querySelector('[data-slot-editor-tags]')?.value
+        || formRoot.querySelector(`[data-${prefix}-slot-tags]`)?.value
+        || '';
+      if (!name) {
+        setError('请先填写选项名称');
+        return;
+      }
+
+      try {
+        if (originalName) {
+          await api(`/api/wardrobe/slot_option/${encodeURIComponent(slot)}/${encodeURIComponent(originalName)}`, {
+            method: 'PUT',
+            body: JSON.stringify({ description, tags }),
+          });
+          markSecondarySaved(slot, originalName);
+        } else {
+          await api('/api/wardrobe/slot_option', {
+            method: 'POST',
+            body: JSON.stringify({ slot, name, description, tags }),
+          });
+          markSecondarySaved(slot, name);
+        }
+        await loadWardrobe(true, true);
+        el.statusText.textContent = `${SLOT_LABELS[slot]} 选项已保存`;
+      } catch (error) {
+        setError(String(error.message || error));
+      }
+    }
+
+    function fillSlotEditorFromLast(card) {
+      if (!state.lastGenerated?.description && !state.lastGenerated?.translatedTags) {
+        setError('还没有可复用的上次生成结果');
+        return;
+      }
+
+      const descriptionField = card.querySelector('[data-slot-editor-description]');
+      const tagsField = card.querySelector('[data-slot-editor-tags]');
+
+      if (descriptionField) {
+        descriptionField.value = state.lastGenerated?.description || descriptionField.value;
+      }
+      if (tagsField) {
+        tagsField.value = state.lastGenerated?.translatedTags || tagsField.value;
+      }
+
+      setError('');
+      markCurrentEditorAsEditing();
+      el.statusText.textContent = '已把上次生成结果填入当前表单';
+    }
+
+    async function saveExistingSlotOption(card) {
+      const slot = card.dataset.slot;
+      const name = card.dataset.name;
+      const description = card.querySelector('[data-slot-edit-field="description"]')?.value || '';
+      const tags = card.querySelector('[data-slot-edit-field="tags"]')?.value || '';
+      try {
+        await api(`/api/wardrobe/slot_option/${encodeURIComponent(slot)}/${encodeURIComponent(name)}`, {
+          method: 'PUT',
+          body: JSON.stringify({ description, tags }),
+        });
+        await loadWardrobe(true, true);
+        el.statusText.textContent = `${name} 已自动保存`;
+      } catch (error) {
+        setError(String(error.message || error));
+      }
+    }
+
+    async function deleteSlotOption(slot, name) {
+      try {
+        const impact = await api(`/api/wardrobe/slot_option/${encodeURIComponent(slot)}/${encodeURIComponent(name)}/impact`);
+        const warnings = [];
+        if (impact.presets?.length) {
+          warnings.push(`受影响预设：${impact.presets.join('、')}`);
+        }
+        if (impact.state_affected) {
+          warnings.push('当前穿搭 state 也引用了这个选项');
+        }
+        const warningText = warnings.length ? `\n\n${warnings.join('\n')}` : '';
+        if (!window.confirm(`确定删除 ${SLOT_LABELS[slot]} 选项「${name}」吗？${warningText}`)) {
+          return;
+        }
+        await api(`/api/wardrobe/slot_option/${encodeURIComponent(slot)}/${encodeURIComponent(name)}`, { method: 'DELETE' });
+        await loadWardrobe(true, true);
+        el.statusText.textContent = `${name} 已删除`;
+      } catch (error) {
+        setError(String(error.message || error));
+      }
+    }
+
+    function renderCurrentView() {
+      const slots = state.wardrobe.state.slots;
+      const activePreset = slots ? state.wardrobe.state.active_preset : null;
+      const presetDescription = activePreset ? state.wardrobe.presets[activePreset]?.description || '' : '';
+      const currentTags = currentResolvedTags();
+      const quickPresetName = resolveQuickPresetName(state.quickPresetName, true);
+      const quickPresetTags = quickPresetName ? presetResolvedTags(quickPresetName) : '';
+      const hasPresetChoices = hasAnyPresets();
+      const cards = SINGLE_SLOTS.map((slot) => {
+        const option = findOption(slot, slots[slot]);
+        return `
+          <article class="slot-card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">${SLOT_ICONS[slot]} ${SLOT_LABELS[slot]}</div>
+                <p class="card-subtitle">当前绑定：${escapeHtml(option?.name || '未穿')}</p>
+              </div>
+              <button class="ghost" data-action="open-slot-view" data-slot="${slot}">管理此槽</button>
+            </div>
+            <div class="muted-box">${escapeHtml(option?.description || '当前没有描述，可在槽位页补充。')}</div>
+            <div style="margin-top: 10px;">${renderTagStrip(option?.tags || '')}</div>
+            <div class="stack" style="margin-top: 12px;">
+              <label>切换当前${SLOT_LABELS[slot]}</label>
+              ${buildOptionSelect(slot, slots[slot])}
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      const accessories = `
+        <article class="slot-card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">${SLOT_ICONS.accessories} 配饰</div>
+              <p class="card-subtitle">可多选；保存后会整体替换当前配饰列表。</p>
+            </div>
+            <button class="ghost" data-action="open-slot-view" data-slot="accessories">管理配饰</button>
+          </div>
+          <div class="chip-row">
+            ${(slots.accessories || []).length ? slots.accessories.map((name) => `<span class="chip">${escapeHtml(name)}</span>`).join('') : '<span class="chip muted">当前没有配饰</span>'}
+          </div>
+          <div style="margin-top: 12px;">
+            ${buildAccessoryCheckboxes(slots.accessories || [], 'current')}
+          </div>
+          <div class="mini-actions">
+            <button class="secondary" data-action="save-current-accessories">保存测试配饰</button>
+          </div>
+        </article>
+      `;
+
+      return `
+        <div class="view-shell">
+          <div class="guide-box">
+            <strong>这里怎么用</strong>
+            先在下面搭一套这次 WebUI 测试里要看的穿搭，然后点“预览测试穿搭”看看效果。如果这套衣服以后还会反复用，就把它保存成预设。这里的测试穿搭默认不会写回 bot 的真实当前穿搭。
+          </div>
+
+          <div class="editor-card accent-card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">快速套用现成预设</div>
+                <p class="card-subtitle">不想一件一件调时，先在这里挑一整套。选中后可以直接套用到测试穿搭，也可以跳到预设页继续细改。</p>
+              </div>
+              <button class="ghost" data-action="open-presets-view">查看全部预设</button>
+            </div>
+            <div class="inline-grid">
+              <div class="field">
+                <label>快速选择一套现成穿搭</label>
+                ${buildPresetSelect(quickPresetName, 'data-current-quick-preset-select')}
+              </div>
+              <div class="field">
+                <label>当前选中说明</label>
+                <div class="muted-box">${escapeHtml(describePresetSelection(quickPresetName))}</div>
+              </div>
+            </div>
+            <div class="stack">
+              <label>这套预设会带入的衣服 tags</label>
+              ${renderTagStrip(quickPresetTags)}
+            </div>
+            <div class="mini-actions">
+              <button class="secondary" data-action="apply-selected-preset" ${hasPresetChoices ? '' : 'disabled'}>套用到测试穿搭</button>
+              <button class="soft" data-action="preview-selected-preset" ${quickPresetName ? '' : 'disabled'}>先预览这套</button>
+              <button class="ghost" data-action="jump-edit-selected-preset" ${quickPresetName ? '' : 'disabled'}>跳到这套的编辑页</button>
+            </div>
+          </div>
+
+          <div class="summary-grid">
+            <div class="summary-card">
+              <small>测试穿搭预设</small>
+              <strong>${escapeHtml(activePreset || '自定义穿搭')}</strong>
+              <p class="card-subtitle">${escapeHtml(presetDescription || '当前测试穿搭不是由某个预设完整绑定，或预设没有描述。')}</p>
+            </div>
+            <div class="summary-card">
+              <small>每日轮换候选</small>
+              <strong>${state.wardrobe.daily_pool.length} 套</strong>
+              <div class="chip-row" style="margin-top: 8px;">
+                ${state.wardrobe.daily_pool.length ? state.wardrobe.daily_pool.map((name) => `<span class="chip">${escapeHtml(name)}</span>`).join('') : '<span class="chip muted">尚未设置 daily_pool</span>'}
+              </div>
+            </div>
+            <div class="summary-card">
+              <small>当前解析 outfit_tags</small>
+              ${renderTagStrip(currentTags)}
+            </div>
+          </div>
+
+          <div class="slot-grid">
+            ${cards}
+            ${accessories}
+          </div>
+
+          <div class="editor-card accent-card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">保存当前穿搭为预设</div>
+                <p class="card-subtitle">这里会把当前 state 中的槽位引用原样保存成一个新预设。</p>
+              </div>
+              <button class="soft" data-action="preview-current">预览当前穿搭</button>
+            </div>
+            <div class="inline-grid">
+              <div class="field">
+                <label for="currentPresetName">预设名称</label>
+                <input id="currentPresetName" placeholder="例如：spring_homewear" value="${escapeAttr(activePreset || '')}" />
+              </div>
+              <div class="field">
+                <label for="currentPresetDescription">预设描述</label>
+                <input id="currentPresetDescription" placeholder="例如：午后居家轻松穿搭" value="${escapeAttr(state.lastGenerated?.description || presetDescription || '')}" />
+              </div>
+            </div>
+            <div class="mini-actions">
+              <button class="primary" data-action="save-current-preset">保存为预设</button>
+              <button class="ghost" data-action="open-presets-view">进入预设页编辑</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPresetEditor() {
+      const isDraft = state.draftSecondary.presets;
+      const selectedName = isDraft ? null : state.selectedPreset;
+      const preset = selectedName ? state.wardrobe.presets[selectedName] : null;
+
+      if (!isDraft && !preset) {
+        return `
+          <div class="editor-card editor-panel">
+            <div class="empty-state">先从左侧点一个预设，或者先点“新增预设”。</div>
+          </div>
+        `;
+      }
+
+      const description = preset?.description || '';
+      const accessories = preset?.accessories || [];
+      const dailyChecked = selectedName ? state.wardrobe.daily_pool.includes(selectedName) : false;
+
+      return `
+        <div class="editor-card editor-panel" id="presetEditor" data-original-name="${escapeAttr(selectedName || '')}">
+          <div class="card-head">
+            <div>
+              <div class="card-title">${isDraft ? '新增预设' : `编辑预设：${escapeHtml(selectedName)}`}</div>
+              <p class="card-subtitle">右侧负责编辑当前选中的预设；左侧黄底表示正在编辑，保存后会临时变成淡蓝。</p>
+            </div>
+          </div>
+          <div class="editor-tip">预设会保存各槽位的引用关系。已有预设支持改名，保存后会自动替换旧名字。</div>
+          <div class="inline-grid">
+            <div class="field">
+              <label for="presetName">预设名称</label>
+              <input id="presetName" value="${escapeAttr(selectedName || '')}" placeholder="例如：summer_casual" />
+            </div>
+            <div class="field">
+              <label for="presetDescription">预设描述</label>
+              <input id="presetDescription" value="${escapeAttr(description)}" placeholder="例如：夏日清爽搭配" />
+            </div>
+          </div>
+          <div class="inline-grid">
+            ${SINGLE_SLOTS.map((slot) => `
+              <div class="field">
+                <label>${SLOT_LABELS[slot]}</label>
+                <select data-preset-slot="${slot}">
+                  <option value="">未穿</option>
+                  ${optionList(slot).map((item) => `<option value="${escapeAttr(item.name)}" ${item.name === preset?.[slot] ? 'selected' : ''}>${escapeHtml(item.name)}</option>`).join('')}
+                </select>
+              </div>
+            `).join('')}
+          </div>
+          <div class="stack">
+            <label>配饰</label>
+            ${buildAccessoryCheckboxes(accessories, 'preset')}
+          </div>
+          <label class="toggle"><input id="presetDailyToggle" type="checkbox" ${dailyChecked ? 'checked' : ''} /> 加入每日轮换池</label>
+          <div class="mini-actions">
+            <button class="primary" data-action="save-preset">保存预设</button>
+            ${selectedName ? `<button class="secondary" data-action="preview-preset" data-name="${escapeAttr(selectedName)}">预览测试</button>` : ''}
+            ${selectedName ? `<button class="ghost" data-action="apply-preset" data-name="${escapeAttr(selectedName)}">应用到当前</button>` : ''}
+            ${selectedName ? `<button class="danger" data-action="delete-preset" data-name="${escapeAttr(selectedName)}">删除预设</button>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPresetsView() {
+      ensureSecondarySelection('presets');
+      const entries = Object.entries(state.wardrobe.presets);
+      const draftItem = state.draftSecondary.presets ? `
+        <button class="${getSecondaryItemClasses('presets', SECONDARY_DRAFT_KEY)}" data-action="create-new-preset" data-secondary-view="presets" data-secondary-key="${SECONDARY_DRAFT_KEY}">
+          <span class="secondary-item-title">未命名预设</span>
+          <span class="secondary-item-meta">新建的空白预设会先显示在这里，右侧填完后再保存。</span>
+        </button>
+      ` : '';
+      const listHtml = entries.length ? entries.map(([name, preset]) => `
+        <button class="${getSecondaryItemClasses('presets', name)}" data-action="select-preset" data-name="${escapeAttr(name)}" data-secondary-view="presets" data-secondary-key="${escapeAttr(name)}">
+          <span class="secondary-item-title">${escapeHtml(name)}</span>
+          <span class="secondary-item-meta">${escapeHtml(preset.description || '未填写描述')}</span>
+          ${state.wardrobe.daily_pool.includes(name) ? '<span class="secondary-item-badge">每日</span>' : ''}
+        </button>
+      `).join('') : '<div class="empty-state">还没有任何预设。先点上方“新增预设”，或者从“当前”页把现有穿搭存成一套。</div>';
+
+      return `
+        <div class="view-shell">
+          <div class="guide-box">
+            <strong>预设是什么</strong>
+            左边这列是预设目录，右边是编辑面板。先在左边选预设，再在右边改；只有点“应用到当前”，它才会真的变成角色现在穿的那一套。
+          </div>
+          <div class="catalog-layout">
+            <aside class="secondary-pane">
+              <div class="secondary-tools">
+                <button class="ghost" data-action="scroll-preset-list-top">回到预设顶部</button>
+                <button class="primary" data-action="create-new-preset">新增预设</button>
+              </div>
+              <div class="secondary-list">
+                ${draftItem}
+                ${listHtml}
+              </div>
+            </aside>
+            ${renderPresetEditor()}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSlotView(slot) {
+      ensureSecondarySelection(slot);
+      const options = optionList(slot);
+      const isDraft = state.draftSecondary[slot];
+      const selectedName = isDraft ? null : state.selectedSlotOption[slot];
+      const selectedItem = selectedName ? findOption(slot, selectedName) : null;
+      const draftItem = state.draftSecondary[slot] ? `
+        <button class="${getSecondaryItemClasses(slot, SECONDARY_DRAFT_KEY)}" data-action="create-new-slot-option" data-slot="${slot}" data-secondary-view="${slot}" data-secondary-key="${SECONDARY_DRAFT_KEY}">
+          <span class="secondary-item-title">未命名${escapeHtml(SLOT_LABELS[slot])}</span>
+          <span class="secondary-item-meta">新建的空白条目会先显示在这里，右侧填完再保存。</span>
+        </button>
+      ` : '';
+      const optionCards = options.length ? options.map((item) => `
+        <button class="${getSecondaryItemClasses(slot, item.name)}" data-action="select-slot-option" data-slot="${slot}" data-name="${escapeAttr(item.name)}" data-secondary-view="${slot}" data-secondary-key="${escapeAttr(item.name)}">
+          <span class="secondary-item-title">${escapeHtml(item.name)}</span>
+          <span class="secondary-item-meta">${escapeHtml(item.description || '未填写描述')}</span>
+        </button>
+      `).join('') : '<div class="empty-state">这个槽位还没有条目。先点上方“新增”，再在右侧填写内容。</div>';
+
+      const editorCard = (!isDraft && !selectedItem) ? `
+        <div class="editor-card editor-panel">
+          <div class="empty-state">先从左侧点一个条目，或者先点“新增${escapeHtml(SLOT_LABELS[slot])}”。</div>
+        </div>
+      ` : `
+        <div class="editor-card editor-panel" id="slotEditor" data-slot-view="${slot}" data-original-name="${escapeAttr(selectedName || '')}">
+          <div class="card-head">
+            <div>
+              <div class="card-title">${isDraft ? `新增${escapeHtml(SLOT_LABELS[slot])}` : `编辑${escapeHtml(SLOT_LABELS[slot])}：${escapeHtml(selectedName)}`}</div>
+              <p class="card-subtitle">右侧只编辑当前选中的条目。已有条目的 name 固定不改；description 负责语义，tags 负责最终注入。</p>
+            </div>
+          </div>
+          <div class="editor-tip">点左侧条目时会标黄，保存后会变淡蓝。新增条目默认是空白，不再自动把上次结果塞进去。</div>
+          <div class="stack">
+            <label>name</label>
+            <input data-slot-editor-name ${selectedName ? 'readonly' : ''} value="${escapeAttr(selectedName || '')}" placeholder="例如：casual_tee" />
+          </div>
+          <div class="stack">
+            <label>description</label>
+            <textarea data-slot-editor-description placeholder="例如：宽松白T，偏居家">${escapeHtml(selectedItem?.description || '')}</textarea>
+          </div>
+          <div class="stack">
+            <label>tags</label>
+            <textarea data-slot-editor-tags placeholder="例如：white t-shirt, oversized shirt">${escapeHtml(selectedItem?.tags || '')}</textarea>
+          </div>
+          ${renderTagStrip(selectedItem?.tags || '')}
+          <div class="mini-actions">
+            <button class="primary" data-action="save-slot-option" data-slot="${slot}">保存${escapeHtml(SLOT_LABELS[slot])}</button>
+            <button class="ghost" data-action="fill-slot-editor-from-last" ${state.lastGenerated?.description || state.lastGenerated?.translatedTags ? '' : 'disabled'}>套用上次结果</button>
+            ${selectedName ? `<button class="danger" data-action="delete-slot-option" data-slot="${slot}" data-name="${escapeAttr(selectedName)}">删除条目</button>` : ''}
+          </div>
+        </div>
+      `;
+
+      return `
+        <div class="view-shell">
+          <div class="guide-box">
+            <strong>${SLOT_LABELS[slot]} 页面是做什么的</strong>
+            左边这列是 ${SLOT_LABELS[slot]} 条目目录，右边是编辑面板。新增后，它就会出现在“当前”和“预设”里的可选列表中。
+          </div>
+          <div class="catalog-layout">
+            <aside class="secondary-pane">
+              <div class="secondary-tools">
+                <button class="ghost" data-action="scroll-library-list-top">回到${escapeHtml(SLOT_LABELS[slot])}顶部</button>
+                <button class="primary" data-action="create-new-slot-option" data-slot="${slot}">新增${escapeHtml(SLOT_LABELS[slot])}</button>
+              </div>
+              <div class="secondary-list">
+                ${draftItem}
+                ${optionCards}
+              </div>
+            </aside>
+            ${editorCard}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderWardrobe(scrollState = null) {
+      el.navButtons.forEach((button) => {
+        button.classList.toggle('active', button.dataset.view === state.currentWardrobeView);
+      });
+
+      if (!state.wardrobe) {
+        el.wardrobeContent.innerHTML = '<div class="empty-state">正在读取衣柜数据...</div>';
+        return;
+      }
+
+      switch (state.currentWardrobeView) {
+        case 'presets':
+          el.wardrobeContent.innerHTML = renderPresetsView();
+          break;
+        case 'top':
+        case 'bottom':
+        case 'outerwear':
+        case 'shoes':
+        case 'accessories':
+          el.wardrobeContent.innerHTML = renderSlotView(state.currentWardrobeView);
+          break;
+        default:
+          el.wardrobeContent.innerHTML = renderCurrentView();
+          break;
+      }
+
+      restoreWardrobeScrollState(scrollState);
+    }
+
+    el.mode.addEventListener('change', syncModeFields);
+    el.reloadConfigBtn.addEventListener('click', async () => {
+      await loadConfig();
+      await loadWardrobe(true, true);
+    });
+    el.translateBtn.addEventListener('click', runTranslate);
+    el.generateBtn.addEventListener('click', runGenerate);
+    el.saveConfigBtn.addEventListener('click', saveConfigOnly);
+    el.copyPromptBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(el.finalPrompt.textContent || '');
+        el.statusText.textContent = '最终 Prompt 已复制';
+      } catch {
+        el.statusText.textContent = '复制失败';
+      }
+    });
+
+    el.jumpButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const targetId = button.dataset.jumpTarget;
+        if (!targetId) {
+          return;
+        }
+        jumpToPanel(targetId);
+        setError('');
+        el.statusText.textContent = targetId === 'wardrobeBoard'
+          ? '已定位到衣柜控制台'
+          : '已定位到结果预览';
+      });
+    });
+
+    el.navButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        state.currentWardrobeView = button.dataset.view;
+        if (state.currentWardrobeView === 'presets' && !state.selectedPreset) {
+          state.selectedPreset = Object.keys(state.wardrobe?.presets || {})[0] || null;
+        }
+        renderWardrobe();
+      });
+    });
+
+    el.wardrobeContent.addEventListener('click', async (event) => {
+      const button = event.target.closest('[data-action]');
+      if (!button) {
+        const presetCard = event.target.closest('[data-preset-card]');
+        if (presetCard && !event.target.closest('.preset-actions') && !event.target.closest('.toggle')) {
+          state.selectedPreset = presetCard.dataset.presetCard;
+          state.quickPresetName = presetCard.dataset.presetCard;
+          rerenderWardrobe(true);
+        }
+        return;
+      }
+
+      const action = button.dataset.action;
+      if (!['save-preset', 'save-slot-option', 'save-current-preset'].includes(action)) {
+        clearSavedSecondary();
+        updateSecondaryItemClasses();
+      }
+      if (action === 'open-slot-view') {
+        state.currentWardrobeView = button.dataset.slot;
+        renderWardrobe();
+        return;
+      }
+      if (action === 'open-current-view') {
+        state.currentWardrobeView = 'current';
+        renderWardrobe();
+        return;
+      }
+      if (action === 'open-presets-view') {
+        const targetName = resolveQuickPresetName(state.quickPresetName);
+        if (targetName) {
+          state.selectedPreset = targetName;
+          state.quickPresetName = targetName;
+        }
+        state.currentWardrobeView = 'presets';
+        renderWardrobe();
+        el.wardrobeBoard?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      if (action === 'preview-current') {
+        await previewWardrobe(null);
+        return;
+      }
+      if (action === 'save-current-accessories') {
+        await saveCurrentAccessories();
+        return;
+      }
+      if (action === 'save-current-preset') {
+        await saveCurrentAsPreset();
+        return;
+      }
+      if (action === 'select-preset') {
+        beginSecondarySelection('presets', button.dataset.name);
+        state.quickPresetName = button.dataset.name;
+        rerenderWardrobe(true);
+        return;
+      }
+      if (action === 'create-new-preset') {
+        beginSecondaryDraft('presets');
+        rerenderWardrobe(true);
+        return;
+      }
+      if (action === 'select-slot-option') {
+        beginSecondarySelection(button.dataset.slot, button.dataset.name);
+        rerenderWardrobe(true);
+        return;
+      }
+      if (action === 'create-new-slot-option') {
+        beginSecondaryDraft(button.dataset.slot);
+        rerenderWardrobe(true);
+        return;
+      }
+      if (action === 'scroll-preset-list-top') {
+        scrollWardrobeContainerToTop('.secondary-list');
+        return;
+      }
+      if (action === 'scroll-library-list-top') {
+        scrollWardrobeContainerToTop('.secondary-list');
+        return;
+      }
+      if (action === 'apply-selected-preset') {
+        const targetName = getQuickPresetChoiceForApply();
+        if (targetName == null) {
+          setError('还没有可套用的预设');
+          return;
+        }
+        await applyPreset(targetName);
+        return;
+      }
+      if (action === 'preview-selected-preset') {
+        const targetName = resolveQuickPresetName(state.quickPresetName);
+        if (!targetName) {
+          setError('还没有可预览的预设');
+          return;
+        }
+        await previewWardrobe(targetName);
+        return;
+      }
+      if (action === 'jump-edit-selected-preset') {
+        jumpToPresetEditor(state.quickPresetName);
+        return;
+      }
+      if (action === 'save-preset') {
+        await savePresetFromEditor();
+        return;
+      }
+      if (action === 'preview-preset') {
+        await previewWardrobe(button.dataset.name);
+        return;
+      }
+      if (action === 'apply-preset') {
+        await applyPreset(button.dataset.name);
+        return;
+      }
+      if (action === 'delete-preset') {
+        await deletePreset(button.dataset.name);
+        return;
+      }
+      if (action === 'save-slot-option') {
+        await saveSlotOption(button.dataset.slot, button.closest('.editor-card'));
+        return;
+      }
+      if (action === 'fill-slot-editor-from-last') {
+        fillSlotEditorFromLast(button.closest('.editor-card'));
+        return;
+      }
+      if (action === 'quick-save-slot-option') {
+        await saveSlotOption(button.dataset.slot, button.closest('.option-card'), true);
+        return;
+      }
+      if (action === 'delete-slot-option') {
+        await deleteSlotOption(button.dataset.slot, button.dataset.name);
+      }
+    });
+
+    el.wardrobeContent.addEventListener('change', async (event) => {
+      const quickPresetSelect = event.target.closest('[data-current-quick-preset-select]');
+      if (quickPresetSelect) {
+        clearSavedSecondary();
+        setQuickPresetName(quickPresetSelect.value);
+        return;
+      }
+
+      const slotSelect = event.target.closest('select[data-slot-current]');
+      if (slotSelect) {
+        clearSavedSecondary();
+        await applyCurrentSlot(slotSelect.dataset.slotCurrent, slotSelect.value);
+        return;
+      }
+
+      const slotField = event.target.closest('[data-slot-edit-field]');
+      if (slotField) {
+        await saveExistingSlotOption(slotField.closest('.option-card'));
+        return;
+      }
+
+      const dailyToggle = event.target.closest('[data-daily-preset]');
+      if (dailyToggle) {
+        await toggleDailyPool(dailyToggle.dataset.dailyPreset, dailyToggle.checked);
+      }
+    });
+
+    el.wardrobeContent.addEventListener('input', (event) => {
+      if (event.target.closest('#presetEditor') || event.target.closest('#slotEditor')) {
+        markCurrentEditorAsEditing();
+      }
+    });
+
+    el.quickPresetSelect.addEventListener('change', () => {
+      setQuickPresetName(el.quickPresetSelect.value);
+    });
+
+    el.quickPresetPreviewBtn.addEventListener('click', async () => {
+      const targetName = resolveQuickPresetName(state.quickPresetName);
+      if (!targetName) {
+        setError('还没有可预览的预设');
+        return;
+      }
+      await previewWardrobe(targetName);
+    });
+
+    el.quickPresetApplyBtn.addEventListener('click', async () => {
+      const targetName = getQuickPresetChoiceForApply();
+      if (targetName == null) {
+        setError('还没有可套用的预设');
+        return;
+      }
+      await applyPreset(targetName);
+    });
+
+    el.quickPresetEditBtn.addEventListener('click', () => {
+      jumpToPresetEditor(state.quickPresetName);
+    });
+
+    async function initialize() {
+      el.outfitTags.textContent = '(当前未注入 outfit_tags)';
+      el.translatedTags.textContent = '(空)';
+      el.finalPrompt.textContent = '(空)';
+      await loadConfig();
+      await loadWardrobe(true);
+    }
+
+    initialize();
+  </script>
+</body>
+</html>
