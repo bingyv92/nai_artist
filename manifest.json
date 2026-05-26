@@ -1,6 +1,6 @@
 {
     "name": "nai_artist",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "NAI Artist — 让 bot 像真人一样用手机拍照或画画并分享给对方。",
     "author": "MoFox Team",
     "dependencies": {

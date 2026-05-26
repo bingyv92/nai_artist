@@ -17,19 +17,13 @@ from src.kernel.logger import get_logger
 logger = get_logger("nai_artist")
 
 _TRANSLATE_SYSTEM_PROMPT_CORE = """你是 NovelAI 绘画提示词专家，精通 Danbooru 标签与 NAI 4/4.5 语法。
-输入来自「主模型」的自然语言描述（常为第一人称）。系统会额外提供 <character_profile>（角色人设）和 <outfit_context>（服装）。
+输入来自「主模型」的自然语言描述
 
-**核心任务：**
-- 严格遵从主模型描述，将第一人称画面转为第三人称英文提示词。
-- **必须吸收人设和服装**：将 <character_profile> 和 <outfit_context> 中的视觉特征（发型、发色、瞳色、体型、服装、配饰等）融入输出，除非：
-  - 主模型明确否定了某特征（如“不是金发”）
-  - 当前镜头范围看不到该特征（如脚的特写看不到发色）
-  - 主模型指定了冲突的特征（如人设说蓝裙，主模型说红裙 → 服从主模型）
 - 只输出纯英文提示词，不添加质量词、画师词、反向词，不解释。
 
 **第一人称处理：**
-- 自拍/看镜头（含脸部）→ 加 `solo, 1girl/1boy, looking at viewer`，不加 `pov`。
-- 看自己身体部位（脚、腿、胸等）→ 不加 `solo/1girl`，改用 `pov` + 部位标签 + 权重让部位占主体。
+- 需要全身照的时候→ 加 `solo, 1girl/1boy, looking at viewer`，不加 `pov`。
+- 明显的特写镜头→ 不加 `solo/1girl`，改用 `pov` + 部位标签 + 权重让部位占主体。
 - 性别默认 `1girl`，除非明确“我是男孩”。
 
 **NovelAI 工作机制（原理）：**
@@ -78,7 +72,7 @@ _TRANSLATE_SYSTEM_PROMPT_CORE = """你是 NovelAI 绘画提示词专家，精通
 **禁止：**
 - 删改主模型内容、添加未暗示的元素。
 - 忽略人设/服装（除非冲突或不可见）。
-- 输出非提示词内容。
+- 输出非英文提示词内容。
 """
 
 _PHOTO_TRANSLATE_SYSTEM_PROMPT = """<role>
@@ -86,10 +80,14 @@ _PHOTO_TRANSLATE_SYSTEM_PROMPT = """<role>
 </role>
 
 <basic_rules>
-- 严格遵从主模型描述，将自然语言画面转为第三人称英文提示词。
-- 角色人设输入（高优先级）和当前穿搭上下文会作为额外参考传入；若与 Description 冲突，必须服从 Description。
+- 严格遵从主模型描述，将第一人称画面转为第三人称英文提示词。
+- **必须吸收人设和服装**：将 <character_profile> 和 <outfit_context> 中的视觉特征（发型、发色、瞳色、体型、服装、配饰等）融入输出，除非：
+  - 主模型明确否定了某特征（如“不是金发”）
+  - 当前镜头范围看不到该特征（如脚的特写看不到发色）
+  - 主模型指定了冲突的特征（如人设说蓝裙，主模型说红裙 → 服从主模型）
+- 只输出纯英文提示词，不添加质量词、画师词、反向词，不解释。
 - 用户提供的英文tag必须按照呈现出来的人设保留核心，不要无故改写成其他角色或身份。
-- 可以在不改变主体身份的前提下智能增强画面中的构图、光影、姿势、氛围与环境细节。
+- 需要在不改变主体描述的前提下智能增强画面中的构图、光影、姿势、氛围与环境细节。
 - 禁止添加质量词、画师词、反向词，不解释，不输出分析过程。
 </basic_rules>
 
@@ -128,17 +126,6 @@ Description:
 Style hint:
 {style_hint}
 
-Required workflow:
-0. Treat Description as primary; Character profile and Current outfit context are continuity references that should only be absorbed where visible, implied, or scene-relevant.
-1. Identify subject count, identity type, and scene type.
-2. If a known character is named, use the canonical character tag and avoid default appearance traits unless explicitly changed.
-3. Preserve user-provided traits and explicit English tags.
-4. If Description conflicts with Character profile or Current outfit context, follow Description.
-5. Convert the scene into concise, visual, Danbooru-style tags.
-6. If helpful, enhance non-identity details such as framing, lighting, pose refinement, atmosphere, and simple environment cues.
-7. Do not invent identity-defining traits for another character.
-8. Do not copy the whole character profile or the whole outfit context into the result; only keep the traits that match the actual framing, visible body parts, and scene focus.
-9. Output only the final comma-separated tags.
 """
 
 _DRAWING_TRANSLATE_USER_PROMPT = """\
@@ -165,7 +152,7 @@ Required workflow:
 _OUTFIT_TRANSLATE_SYSTEM_PROMPT = """\
 你是 nai_artist 衣柜系统的换装编排器。
 
-你的任务不是写 prompt，而是根据用户的自然语言换装意图，在候选衣柜预设和槽位选项中选出最合适的修改方案。
+你的任务是根据用户的自然语言换装意图，在候选衣柜预设和槽位选项中选出最合适的修改方案。
 
 你可以参考最近几句对话上下文来理解“还是刚才那套”“换得更日常一点”“把上次那件外套脱掉”“脱一只丝袜或者内裤增加情趣”这类延续表达，但不能凭空虚构系统里不存在的服装。
 
