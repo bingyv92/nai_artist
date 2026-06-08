@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from copy import deepcopy
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Literal, cast
+from typing import Any, Literal, cast
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 
 from .webui_logic import (
     DEFAULT_PLUGIN_CONFIG_PATH,
+    ConfigOverrideData,
     apply_config_overrides,
     check_deletion_impact,
     config_to_editor_payload,
@@ -33,7 +34,7 @@ from .webui_logic import (
     update_slot_option,
     update_wardrobe_state,
 )
-from .wardrobe import SlotName, WardrobeManager
+from .wardrobe import DeletionImpact, SlotName, WardrobeData, WardrobeManager
 
 
 NO_CACHE_HEADERS = {
@@ -147,9 +148,9 @@ def _sync_preview_wardrobe(app: FastAPI, *, keep_preview_state: bool = True) -> 
     return preview_path
 
 
-def _build_preview_overrides(app: FastAPI, overrides: ConfigOverrides | None) -> dict[str, object]:
+def _build_preview_overrides(app: FastAPI, overrides: ConfigOverrides | None) -> ConfigOverrideData:
     """构造指向 WebUI 测试态衣柜文件的配置覆盖。"""
-    merged: dict[str, object] = overrides.model_dump(exclude_none=True) if overrides else {}
+    merged = cast(ConfigOverrideData, overrides.model_dump(exclude_none=True) if overrides else {})
     merged["wardrobe_data_file"] = str(_sync_preview_wardrobe(app))
     return merged
 
@@ -190,12 +191,12 @@ def create_app(
         return {"status": "ok", "service": "nai_artist_webui"}
 
     @app.get("/api/config")
-    async def get_config() -> dict:
+    async def get_config() -> dict[str, Any]:
         config = load_nai_artist_config(app.state.nai_artist_config_path)
         return config_to_editor_payload(config, app.state.nai_artist_config_path)
 
     @app.post("/api/translate")
-    async def api_translate(request: PreviewRequest) -> dict:
+    async def api_translate(request: PreviewRequest) -> dict[str, Any]:
         return await preview_translation(
             description=request.description,
             mode=request.mode,
@@ -204,7 +205,7 @@ def create_app(
         )
 
     @app.post("/api/generate")
-    async def api_generate(request: PreviewRequest) -> dict:
+    async def api_generate(request: PreviewRequest) -> dict[str, Any]:
         result = await generate_preview(
             description=request.description,
             mode=request.mode,
@@ -216,21 +217,21 @@ def create_app(
         return result
 
     @app.post("/api/config/save")
-    async def api_save_config(request: SaveRequest) -> dict:
+    async def api_save_config(request: SaveRequest) -> dict[str, Any]:
         config = save_nai_artist_config(
-            request.overrides.model_dump(exclude_none=True),
+            cast(ConfigOverrideData, request.overrides.model_dump(exclude_none=True)),
             app.state.nai_artist_config_path,
         )
         return config_to_editor_payload(config, app.state.nai_artist_config_path)
 
     @app.post("/api/config/preview")
-    async def api_preview_config(request: SaveRequest) -> dict:
+    async def api_preview_config(request: SaveRequest) -> dict[str, Any]:
         config = load_nai_artist_config(app.state.nai_artist_config_path)
-        apply_config_overrides(config, request.overrides.model_dump(exclude_none=True))
+        apply_config_overrides(config, cast(ConfigOverrideData, request.overrides.model_dump(exclude_none=True)))
         return config_to_editor_payload(config, app.state.nai_artist_config_path)
 
     @app.get("/api/wardrobe")
-    async def api_get_wardrobe() -> dict:
+    async def api_get_wardrobe() -> WardrobeData:
         preview_path = _sync_preview_wardrobe(app)
         return get_wardrobe_data(
             app.state.nai_artist_config_path,
@@ -238,7 +239,7 @@ def create_app(
         )
 
     @app.post("/api/wardrobe/slot_option")
-    async def api_save_slot_option(request: SlotOptionRequest) -> dict:
+    async def api_save_slot_option(request: SlotOptionRequest) -> WardrobeData:
         return save_slot_option(
             slot=cast(SlotName, request.slot),
             name=request.name,
@@ -252,7 +253,7 @@ def create_app(
         slot: Literal["top", "bottom", "outerwear", "shoes", "accessories"],
         name: str,
         request: SlotOptionUpdateRequest,
-    ) -> dict:
+    ) -> WardrobeData:
         try:
             return update_slot_option(
                 slot=cast(SlotName, slot),
@@ -268,7 +269,7 @@ def create_app(
     async def api_slot_option_impact(
         slot: Literal["top", "bottom", "outerwear", "shoes", "accessories"],
         name: str,
-    ) -> dict:
+    ) -> DeletionImpact:
         try:
             return check_deletion_impact(
                 slot=cast(SlotName, slot),
@@ -282,7 +283,7 @@ def create_app(
     async def api_delete_slot_option(
         slot: Literal["top", "bottom", "outerwear", "shoes", "accessories"],
         name: str,
-    ) -> dict:
+    ) -> WardrobeData:
         try:
             return delete_slot_option(
                 slot=cast(SlotName, slot),
@@ -293,7 +294,7 @@ def create_app(
             raise HTTPException(status_code=404, detail=f"槽位选项不存在: {exc.args[0]}") from exc
 
     @app.post("/api/wardrobe/preset")
-    async def api_save_preset(request: PresetRequest) -> dict:
+    async def api_save_preset(request: PresetRequest) -> WardrobeData:
         return save_preset(
             name=request.name,
             description=request.description,
@@ -306,18 +307,18 @@ def create_app(
         )
 
     @app.delete("/api/wardrobe/preset/{name}")
-    async def api_delete_preset(name: str) -> dict:
+    async def api_delete_preset(name: str) -> WardrobeData:
         try:
             return delete_preset(name, app.state.nai_artist_config_path)
         except KeyError as exc:
             raise HTTPException(status_code=404, detail=f"预设不存在: {exc.args[0]}") from exc
 
     @app.post("/api/wardrobe/daily-pool")
-    async def api_update_daily_pool(request: DailyPoolRequest) -> dict:
+    async def api_update_daily_pool(request: DailyPoolRequest) -> WardrobeData:
         return update_daily_pool(request.preset_names, app.state.nai_artist_config_path)
 
     @app.post("/api/wardrobe/state")
-    async def api_update_wardrobe_state(request: WardrobeStateRequest) -> dict:
+    async def api_update_wardrobe_state(request: WardrobeStateRequest) -> WardrobeData:
         try:
             wardrobe_data_file = None
             if request.persist:
@@ -337,7 +338,7 @@ def create_app(
             raise HTTPException(status_code=404, detail=f"预设不存在: {exc.args[0]}") from exc
 
     @app.post("/api/wardrobe/preview")
-    async def api_wardrobe_preview(request: WardrobePreviewRequest) -> dict:
+    async def api_wardrobe_preview(request: WardrobePreviewRequest) -> dict[str, Any]:
         try:
             result = await preview_with_preset(
                 description=request.description,

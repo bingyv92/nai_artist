@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, Literal, TypedDict, cast
+from typing import Any, Literal, cast
+
+from typing_extensions import TypedDict
 
 from src.core.config import init_core_config, init_model_config
 from src.kernel.config.core import _render_toml_with_signature

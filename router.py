@@ -5,6 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from fastapi import FastAPI
+
 from src.app.plugin_system.base import BaseRouter
 from src.kernel.logger import get_logger
 
@@ -27,7 +29,7 @@ class NaiArtistWebUIRouter(BaseRouter):
         if isinstance(config, NaiArtistConfig):
             route_path = config.webui.route_path.strip()
             self.custom_route_path = route_path or "/plugins/nai-artist"
-        self._sub_app = None
+        self._sub_app: FastAPI | None = None
         super().__init__(plugin)
 
     def register_endpoints(self) -> None:

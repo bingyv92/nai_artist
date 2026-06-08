@@ -37,7 +37,7 @@ class NaiArtistPlugin(BasePlugin):
 
     plugin_name: str = "nai_artist"
     plugin_description: str = "让 bot 像真人一样用手机拍照或展示手绘画作"
-    plugin_version: str = "1.0.0"
+    plugin_version: str = "1.0.3"
 
     configs: list[type] = [NaiArtistConfig]
     dependent_components: list[str] = []

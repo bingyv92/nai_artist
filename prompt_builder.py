@@ -7,7 +7,9 @@ from __future__ import annotations
 
 from copy import deepcopy
 import json
-from typing import Any, Literal, TypedDict
+from typing import Any, Literal
+
+from typing_extensions import TypedDict
 
 from src.app.plugin_system.api import llm_api
 from src.app.plugin_system.types import LLMPayload, ROLE, TaskType, Text

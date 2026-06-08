@@ -6,7 +6,9 @@ import json
 from copy import deepcopy
 from datetime import date, datetime
 from pathlib import Path
-from typing import Any, Iterable, Literal, TypedDict, cast
+from typing import Any, Iterable, Literal, cast
+
+from typing_extensions import TypedDict
 
 from src.app.plugin_system.base import BaseService
 from src.kernel.logger import get_logger
