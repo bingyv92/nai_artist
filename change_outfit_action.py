@@ -86,6 +86,7 @@ class ChangeOutfitAction(BaseAction):
 
     action_name: str = "change_outfit"
     dependencies: list[str] = ["nai_artist:service:wardrobe"]
+    associated_types: list[str] = ["text"]
     action_description: str = _build_action_description()
     primary_action: bool = False
 
